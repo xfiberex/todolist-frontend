@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
         setAuth({});
     }
 
-    const actualizarPerfil = async (datos) => {
+    const actualizarPerfil = async datos => {
         const token = localStorage.getItem("token");
 
         if (!token) {
@@ -72,6 +72,10 @@ export const AuthProvider = ({ children }) => {
                 datos,
                 config
             );
+
+            // Sincronizar el estado de auth con los datos actualizados
+            setAuth(prevAuth => ({ ...prevAuth, ...datos }));
+
             return {
                 msg: "Almacenado correctamente",
                 error: false,
