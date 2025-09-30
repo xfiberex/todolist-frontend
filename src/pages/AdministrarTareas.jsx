@@ -1,19 +1,28 @@
 // src/pages/AdministrarTareas.jsx
 
 import { useState } from "react";
+import useTareas from "../hooks/useTareas";
 import { Transition } from "@headlessui/react";
-// --- 1. IMPORTAR nuestro nuevo hook ---
 import useMediaQuery from "../hooks/useMediaQuery"; 
 import FormularioTarea from "../components/FormularioTarea";
 import ListadoTareas from "../components/ListaTareas";
 
 import FiltrosTareas from "../components/FiltrosTareas";
+import ModalEliminacion from "../components/ModalEliminacion";
 
 const AdministrarTareas = () => {
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     // --- 2. USAR EL HOOK para detectar si estamos en vista móvil ---
     // Tailwind usa 768px para el breakpoint 'md'. 'max-width: 767px' se aplica a todo lo que esté por debajo.
     const isMobile = useMediaQuery('(max-width: 767px)');
+
+    const { 
+        modalEliminar, 
+        handleCloseModalEliminar, 
+        eliminarTarea, 
+        tareaAEliminar, 
+        cargandoEliminacion 
+    } = useTareas();
 
     return (
         <div className="flex flex-col md:flex-row gap-12">
@@ -52,11 +61,19 @@ const AdministrarTareas = () => {
             </Transition>
 
             <div className="flex-1">
-                {/* --- AÑADIMOS EL PANEL DE FILTROS AQUÍ --- */}
                 <FiltrosTareas />
-                
                 <ListadoTareas />
             </div>
+
+            {/* --- NUEVO: Renderizar el Modal de Eliminación aquí --- */}
+            {/* El modal se renderizará cuando 'modalEliminar' sea true. */}
+            <ModalEliminacion 
+                isOpen={modalEliminar}
+                onClose={handleCloseModalEliminar}
+                onConfirm={eliminarTarea} // La función de confirmación es la propia `eliminarTarea` del context
+                tareaNombre={tareaAEliminar?.nombre || ''}
+                cargando={cargandoEliminacion}
+            />
         </div>
     );
 };

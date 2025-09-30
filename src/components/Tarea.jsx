@@ -4,7 +4,7 @@ import React, { memo } from "react";
 
 const Tarea = React.forwardRef(
     ({ tarea, style, dragAttributes, dragListeners }, ref) => {
-        const { setEdicion, eliminarTarea, cambiarEstadoTarea } = useTareas();
+        const { setEdicion, handleModalEliminar, cambiarEstadoTarea } = useTareas();
         const { nombre, descripcion, fechaEntrega, prioridad, estado, _id } =
             tarea;
 
@@ -142,7 +142,7 @@ const Tarea = React.forwardRef(
                         {/* Eliminar */}
                         <button
                             type="button"
-                            onClick={() => eliminarTarea(_id)}
+                            onClick={() => handleModalEliminar(tarea)}
                             className="p-2 text-red-500 hover:bg-red-900/50 rounded-full transition-colors"
                         >
                             <svg

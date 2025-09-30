@@ -21,8 +21,13 @@ const TareasProvider = ({ children }) => {
     const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
     const [orden, setOrden] = useState("fecha-asc");
 
-    // ESTADO DERIVADO: TAREAS FILTRADAS Y ORDENADAS
+    // ESTADO PARA TAREAS FILTRADAS Y ORDENADAS
     const [tareasFiltradas, setTareasFiltradas] = useState([]);
+
+    // --- ESTADOS PARA EL MODAL DE ELIMINACIÓN ---
+    const [modalEliminar, setModalEliminar] = useState(false);
+    const [tareaAEliminar, setTareaAEliminar] = useState(null);
+    const [cargandoEliminacion, setCargandoEliminacion] = useState(false);
 
     const { auth } = useAuth();
 
@@ -122,23 +127,27 @@ const TareasProvider = ({ children }) => {
 
     const cancelarEdicionTarea = () => setTarea({});
 
-    const eliminarTarea = async id => {
-        if (!confirm("¿Estás seguro de que deseas eliminar esta tarea?")) return;
+    const eliminarTarea = async () => {
+        if (!tareaAEliminar) return; // Salvaguarda
+
+        setCargandoEliminacion(true);
         try {
             const token = localStorage.getItem("token");
             const config = { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } };
-            const { data } = await clienteAxios.delete(`/tareas/${id}`, config);
-            const tareasActualizadas = tareas.filter(t => t._id !== id);
+            
+            await clienteAxios.delete(`/tareas/${tareaAEliminar._id}`, config);
+            
+            const tareasActualizadas = tareas.filter(t => t._id !== tareaAEliminar._id);
             setTareas(tareasActualizadas);
-            reordenarTareas(tareasActualizadas);
-
-            // ---- CORRECCIÓN ----
-            // Se usa setAlertaEstatica para que el mensaje de éxito se muestre en el
-            // listado de tareas, igual que el mensaje de error. Antes usaba setAlerta.
-            setAlerta({ msg: data.msg, error: false });
+            
+            setAlerta({ msg: 'Tarea Eliminada Correctamente', error: false });
+            handleCloseModalEliminar(); // Cierra el modal después del éxito
+        
         } catch (error) {
             console.error(error);
-            setAlertaEstatica({ msg: "Hubo un error al eliminar la tarea", error: true });
+            // Puedes establecer una alerta de error aquí si lo deseas
+        } finally {
+            setCargandoEliminacion(false);
         }
     };
 
@@ -164,6 +173,20 @@ const TareasProvider = ({ children }) => {
                 console.error("No se pudo guardar el orden de las tareas:", error);
             }
         }
+    };
+
+    // --- Función para ABRIR el modal ---
+    // Recibe la tarea completa para poder mostrar su nombre
+    const handleModalEliminar = (tarea) => {
+        setTareaAEliminar(tarea);
+        setModalEliminar(true);
+    };
+
+    // --- Función para CERRAR el modal ---
+    const handleCloseModalEliminar = () => {
+        setModalEliminar(false);
+        // Pequeño delay para que no se vea el cambio de nombre antes de que se cierre
+        setTimeout(() => setTareaAEliminar(null), 300); 
     };
 
     const limpiarFiltros = () => {
@@ -201,6 +224,13 @@ const TareasProvider = ({ children }) => {
                     prioridad: filtroPrioridad,
                     orden,
                 },
+
+                // --- Exportar props para el modal ---
+                modalEliminar,
+                handleModalEliminar,
+                handleCloseModalEliminar,
+                tareaAEliminar,
+                cargandoEliminacion,
             }}
         >
             {children}
