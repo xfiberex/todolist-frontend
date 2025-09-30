@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Estilos para el contenedor de la pantalla de carga */
+      .app-loading {
+        background-color: #0f172a; /* Equivalente a bg-slate-900 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      /* Estilos para el spinner */
+      .spinner {
+        width: 4rem; /* 64px, equivalente a w-16 */
+        height: 4rem; /* 64px, equivalente a h-16 */
+        border-radius: 50%;
+        border: 4px solid #334155; /* Equivalente a border-slate-700 */
+        border-top-color: #14b8a6; /* Equivalente a border-t-teal-500 */
+        animation: spin 1s linear infinite;
+      }
+      /* Animación de rotación (keyframes de 'animate-spin' de Tailwind) */
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }

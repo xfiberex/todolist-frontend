@@ -1,0 +1,27 @@
+<svg width="256" height="256" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Definiciones para gradientes y sombras -->
+  <defs>
+    <!-- Gradiente para el fondo del checkbox -->
+    <linearGradient id="boxGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    
+    <!-- Filtro para la sombra del checkmark -->
+    <filter id="checkmarkShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#0d9488" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  
+  <!-- El checkbox con el gradiente aplicado -->
+  <rect x="8" y="8" width="48" height="48" rx="12" fill="url(#boxGradient)" stroke="#475569" stroke-width="2"/>
+  
+  <!-- El checkmark dinámico con la sombra aplicada -->
+  <path d="M20 34 l10 10 l24 -24"
+        fill="none" 
+        stroke="#2dd4bf" 
+        stroke-width="10" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        filter="url(#checkmarkShadow)"/>
+</svg>
