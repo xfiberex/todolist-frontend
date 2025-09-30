@@ -1,27 +1,25 @@
-# Backend - Gestor de Teras
+# Frontend - Gestor de Tareas
 
-Este directorio contiene el código fuente del backend para la aplicación de gestión de tareas. Es una API RESTful construida con Node.js y Express, diseñada para manejar la lógica de negocio, la autenticación de usuarios y la interacción con la base de datos.
+Este directorio contiene el código fuente del frontend para la aplicación de gestión de tareas. Es una Single Page Application (SPA) construida con React, diseñada para ofrecer una experiencia de usuario fluida, moderna y responsive.
 
 ## ✨ Características Principales
 
-*   **API RESTful**: Endpoints para la gestión completa de usuarios y tareas.
-*   **Autenticación con JWT**: Sistema de registro, inicio de sesión y sesiones seguras mediante JSON Web Tokens.
-*   **Seguridad**: Hashing de contraseñas con `bcrypt` para un almacenamiento seguro.
-*   **Confirmación por Email**: Flujo de confirmación de cuenta para nuevos usuarios a través de email.
-*   **Recuperación de Contraseña**: Funcionalidad para que los usuarios puedan restablecer su contraseña de forma segura.
-*   **Rutas Protegidas**: Middleware que asegura que solo los usuarios autenticados puedan acceder a sus propios recursos.
-*   **Base de Datos**: Utiliza MongoDB con Mongoose para un modelado de datos robusto y escalable.
+*   **Interfaz Moderna**: Construida con React y estilizada con Tailwind CSS.
+*   **Enrutamiento**: Gestión de rutas del lado del cliente con `react-router-dom`.
+*   **Gestión de Estado Global**: Uso del Context API de React para manejar el estado de la autenticación y las tareas.
+*   **Formularios Interactivos**: Formularios para registro, inicio de sesión y gestión de tareas.
+*   **Rutas Protegidas**: Solo los usuarios autenticados pueden acceder al panel principal de tareas.
+*   **Comunicación con API**: Utiliza `axios` para realizar peticiones HTTP al backend.
+*   **Diseño Responsive**: Adaptable a diferentes tamaños de pantalla, desde móviles hasta escritorio.
 
 ## 🛠️ Tecnologías Utilizadas
 
-*   **Node.js**: Entorno de ejecución para JavaScript.
-*   **Express**: Framework para la construcción de la API.
-*   **MongoDB**: Base de datos NoSQL.
-*   **Mongoose**: ODM para modelar los datos de la aplicación.
-*   **JSON Web Tokens (JWT)**: Para la generación de tokens de acceso.
-*   **Bcrypt**: Para el hashing de contraseñas.
-*   **Nodemailer**: Para el envío de correos electrónicos.
-*   **Dotenv**: Para la gestión de variables de entorno.
+*   **React**: Biblioteca para construir interfaces de usuario.
+*   **Vite**: Herramienta de desarrollo frontend rápida.
+*   **React Router DOM**: Para el enrutamiento en la aplicación.
+*   **Tailwind CSS**: Framework de CSS "utility-first" para un diseño rápido.
+*   **Axios**: Cliente HTTP para realizar peticiones a la API.
+*   **Context API**: Para la gestión del estado global.
 
 ## 🚀 Instalación y Puesta en Marcha
 
@@ -30,9 +28,9 @@ Este directorio contiene el código fuente del backend para la aplicación de ge
     git clone https://github.com/tu-usuario/tu-repositorio.git
     ```
 
-2.  **Navegar al directorio del backend:**
+2.  **Navegar al directorio del frontend:**
     ```bash
-    cd Backend
+    cd Frontend
     ```
 
 3.  **Instalar dependencias:**
@@ -41,40 +39,22 @@ Este directorio contiene el código fuente del backend para la aplicación de ge
     ```
 
 4.  **Configurar variables de entorno:**
-    Crea un archivo `.env` en la raíz del directorio `Backend/` y añade las siguientes variables (puedes usar el archivo `.env.example` como guía):
+    Crea un archivo `.env.local` en la raíz del directorio `Frontend/` y añade la URL del backend:
     ```env
-    MONGO_URI=tu_string_de_conexion_a_mongodb
-    JWT_SECRET=tu_palabra_secreta_para_jwt
-    
-    # Configuración para el envío de emails (ej. Mailtrap, Gmail)
-    EMAIL_HOST=smtp.mailtrap.io
-    EMAIL_PORT=2525
-    EMAIL_USER=tu_usuario_email
-    EMAIL_PASS=tu_password_email
-    
-    FRONTEND_URL=http://localhost:5173
+    VITE_BACKEND_URL=http://localhost:4000
     ```
 
-5.  **Ejecutar el servidor en modo desarrollo:**
+5.  **Ejecutar el servidor de desarrollo:**
     ```bash
     npm run dev
     ```
-    El servidor se iniciará en el puerto especificado (por defecto, el 4000).
+    La aplicación se abrirá automáticamente en tu navegador, generalmente en `http://localhost:5173`.
 
-## 🌐 Endpoints de la API
+## 📦 Build para Producción
 
-*   `/api/usuarios`: Rutas para registro, autenticación y gestión de perfiles.
-*   `/api/tareas`: Rutas CRUD para las tareas (protegidas por autenticación).
+Para crear una versión optimizada de la aplicación para producción, ejecuta:
 
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run build
+```
+Esto generará los archivos estáticos en el directorio `dist/`, listos para ser desplegados en un servidor web.
