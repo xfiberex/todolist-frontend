@@ -1,113 +1,69 @@
+// src/pages/NuevoPassword.jsx
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import clienteAxios from "../../config/axios";
-
-// --- Importación de Componentes ---
 import Alerta from "../components/Alerta";
 import Boton from "../components/Boton";
 import Spinner from "../components/Spinner";
 
 const NuevoPassword = () => {
-    // --- Estados ---
-    const [password, setPassword] = useState("");
-    const [repetirPassword, setRepetirPassword] = useState("");
+    // Estado de la UI
     const [tokenValido, setTokenValido] = useState(false);
     const [passwordModificado, setPasswordModificado] = useState(false);
     const [alerta, setAlerta] = useState({});
-    const [cargando, setCargando] = useState(false);
 
-    // --- Parametros ---
-    const params = useParams();
-    const { token } = params;
+    // Token de la URL
+    const { token } = useParams();
 
-    // --- Efecto de comprobación del token (lógica original correcta) ---
+    // useForm hook
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm();
+    const passwordValue = watch("password");
+
+    // Efecto para comprobar la validez del token al cargar
     useEffect(() => {
         const comprobarToken = async () => {
-            setCargando(true); // Opcional: mostrar carga mientras se valida el token
             try {
                 await clienteAxios(`/usuarios/olvide-password/${token}`);
-                setAlerta({
-                    msg: "Coloca tu nueva contraseña",
-                    error: false,
-                });
+                setAlerta({ msg: "Coloca tu nueva contraseña", error: false });
                 setTokenValido(true);
-            } catch (error) {
-                setAlerta({
-                    msg:
-                        error.response?.data?.msg ||
-                        "Hubo un error con el enlace",
-                    error: true,
-                });
-            } finally {
-                setCargando(false);
+            } catch {
+                setAlerta({ msg: "Hubo un error con el enlace", error: true });
             }
         };
         comprobarToken();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // La dependencia vacía es correcta
+    }, [token]);
 
-    // --- Función de envío ---
-    const nuevoPasswordSubmit = async (e) => {
-        e.preventDefault();
-
-        // --- Validaciones ---
-        if ([password, repetirPassword].includes("")) {
-            setAlerta({ msg: "Hay campos vacíos", error: true });
-            return;
-        }
-
-        if (password !== repetirPassword) {
-            setAlerta({ msg: "Las contraseñas no coinciden", error: true });
-            return;
-        }
-
-        if (password.length < 6) {
-            setAlerta({
-                msg: "La contraseña es muy corta, agrega mínimo 6 caracteres",
-                error: true,
-            });
-            return;
-        }
-
+    // Función de envío del formulario
+    const onSubmit = async (data) => {
         setAlerta({});
-        setCargando(true);
-
         try {
-            const fakeDelay = new Promise((resolve) =>
-                setTimeout(resolve, 2000)
-            );
             const url = `/usuarios/olvide-password/${token}`;
-            const apiCall = clienteAxios.post(url, { password });
-
-            const [apiResponse] = await Promise.all([apiCall, fakeDelay]);
-            const { data } = apiResponse;
-
-            setAlerta({
-                msg: data.msg,
-                error: false,
+            const apiResponse = await clienteAxios.post(url, {
+                password: data.password,
             });
 
-            // Se actualiza el estado para cambiar la UI, pero no se redirige.
+            setAlerta({ msg: apiResponse.data.msg, error: false });
             setPasswordModificado(true);
-
-            // Se limpian los campos del formulario.
-            setPassword("");
-            setRepetirPassword("");
+            reset();
         } catch (error) {
             setAlerta({
-                msg: error.response.data.msg,
+                msg: error.response?.data?.msg || "Error en el servidor",
                 error: true,
             });
-        } finally {
-            setCargando(false);
         }
     };
 
     return (
         <>
-            {/* --- SECCIÓN IZQUIERDA: Título --- */}
             <div>
-                {/* NUEVO: Título adaptado al tema oscuro con el gradiente característico. */}
                 <h1 className="text-slate-200 font-black text-5xl md:text-6xl">
                     Reestablece tu contraseña y no Pierdas tus{" "}
                     <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">
@@ -116,13 +72,11 @@ const NuevoPassword = () => {
                 </h1>
             </div>
 
-            {/* --- SECCIÓN DERECHA: Tarjeta de Formulario --- */}
             <div className="w-full shadow-lg p-8 rounded-xl bg-white border-t-4 border-teal-500">
                 <Alerta alerta={alerta} />
 
                 {tokenValido && !passwordModificado && (
-                    <form onSubmit={nuevoPasswordSubmit}>
-                        {/* NUEVO: Labels e Inputs rediseñados para el tema oscuro */}
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="my-5">
                             <label className="uppercase text-slate-600 block text-xl font-bold">
                                 Nueva Contraseña
@@ -130,45 +84,74 @@ const NuevoPassword = () => {
                             <input
                                 type="password"
                                 placeholder="Ingresa tu nueva contraseña..."
-                                className="border border-slate-300 w-full p-3 mt-3 bg-slate-50 rounded-lg 
-                                           focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                className={`border w-full p-3 mt-3 bg-slate-50 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${
+                                    errors.password
+                                        ? "border-red-500"
+                                        : "border-slate-300"
+                                }`}
+                                {...register("password", {
+                                    required:
+                                        "La nueva contraseña es obligatoria",
+                                    minLength: {
+                                        value: 6,
+                                        message:
+                                            "La contraseña debe tener al menos 6 caracteres",
+                                    },
+                                })}
                             />
+                            {errors.password && (
+                                <p className="text-red-600 mt-1 text-sm">
+                                    {errors.password.message}
+                                </p>
+                            )}
                         </div>
+
                         <div className="my-5">
                             <label className="uppercase text-slate-600 block text-xl font-bold">
-                                Repetir Contraseña Nueva
+                                Repetir Nueva Contraseña
                             </label>
                             <input
                                 type="password"
                                 placeholder="Repite tu nueva contraseña..."
-                                className="border border-slate-300 w-full p-3 mt-3 bg-slate-50 rounded-lg 
-                                           focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                                value={repetirPassword}
-                                onChange={(e) =>
-                                    setRepetirPassword(e.target.value)
-                                }
+                                className={`border w-full p-3 mt-3 bg-slate-50 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${
+                                    errors.repetirPassword
+                                        ? "border-red-500"
+                                        : "border-slate-300"
+                                }`}
+                                {...register("repetirPassword", {
+                                    required: "Debes confirmar la contraseña",
+                                    validate: (value) =>
+                                        value === passwordValue ||
+                                        "Las contraseñas no coinciden",
+                                })}
                             />
+                            {errors.repetirPassword && (
+                                <p className="text-red-600 mt-1 text-sm">
+                                    {errors.repetirPassword.message}
+                                </p>
+                            )}
                         </div>
-                        {/* El Boton ya tiene el estilo 'teal' correcto */}
-                        <Boton type="submit" disabled={cargando}>
-                            {/* ... */}
+
+                        <Boton type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <div className="flex justify-center items-center gap-3">
+                                    <Spinner />
+                                    <span>Guardando...</span>
+                                </div>
+                            ) : (
+                                "Guardar Nueva Contraseña"
+                            )}
                         </Boton>
                     </form>
                 )}
 
                 {passwordModificado && (
-                    <nav className="mt-10">
-                        {/* NUEVO: El link-botón de Iniciar Sesión usa la paleta 'teal'. */}
-                        <Link
-                            className="block text-center py-3 px-10 mx-auto w-fit
-                                     text-white border rounded-lg bg-teal-600 hover:bg-teal-700 transition-colors"
-                            to="/"
-                        >
-                            Iniciar Sesión
-                        </Link>
-                    </nav>
+                    <Link
+                        className="block text-center mt-10 py-3 px-10 mx-auto w-fit text-white border rounded-lg bg-teal-600 hover:bg-teal-700 transition-colors"
+                        to="/"
+                    >
+                        Iniciar Sesión
+                    </Link>
                 )}
             </div>
         </>

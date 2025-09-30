@@ -1,78 +1,49 @@
+// src/pages/OlvidePassword.jsx
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import clienteAxios from "../../config/axios";
-
-// --- Importación de Componentes ---
-import Alerta, { AlertaEstatica } from "../components/Alerta";
+import { AlertaEstatica } from "../components/Alerta";
 import Boton from "../components/Boton";
 import Spinner from "../components/Spinner";
 
 const OlvidePassword = () => {
-    // --- Estados ---
-    const [email, setEmail] = useState("");
-    const [cargando, setCargando] = useState(false);
+    // Estado de la UI
+    const [alertaEstatica, setAlertaEstatica] = useState({});
     const [enviado, setEnviado] = useState(false);
 
-    // --- Estados para cada tipo de alerta ---
-    const [alerta, setAlerta] = useState({}); // Para validaciones dinámicas
-    const [alertaEstatica, setAlertaEstatica] = useState({}); // Para el resultado final estático
+    // useForm hook
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm({ defaultValues: { email: "" } });
 
-    // --- Funciones ---
-    const olvidePasswordSubmit = async (e) => {
-        e.preventDefault();
-
-        // Usamos la alerta dinámica para validaciones rápidas
-        if (email === "") {
-            setAlerta({ msg: "El correo es obligatorio", error: true });
-            return;
-        }
-        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!regexEmail.test(email)) {
-            setAlerta({
-                msg: "El formato del correo no es válido",
-                error: true,
-            });
-            return;
-        }
-
-        // Limpiamos ambas alertas antes de empezar la petición
-        setAlerta({});
+    // Función de envío del formulario
+    const onSubmit = async (data) => {
         setAlertaEstatica({});
-        setCargando(true);
-
         try {
-            const fakeDelay = new Promise((resolve) =>
-                setTimeout(resolve, 2000)
+            const apiResponse = await clienteAxios.post(
+                "/usuarios/olvide-password",
+                data
             );
-            const apiCall = clienteAxios.post("/usuarios/olvide-password", {
-                email,
-            });
-            const [apiResponse] = await Promise.all([apiCall, fakeDelay]);
-            const { data } = apiResponse;
 
-            // Usamos la alerta estática para el mensaje final y persistente
-            setAlertaEstatica({
-                msg: data.msg,
-                error: false,
-            });
+            setAlertaEstatica({ msg: apiResponse.data.msg, error: false });
             setEnviado(true);
-            setEmail("");
+            reset();
         } catch (error) {
-            // El error de API también es un mensaje final y persistente
             setAlertaEstatica({
-                msg: error.response.data.msg,
+                msg: error.response?.data?.msg || "Error en el servidor",
                 error: true,
             });
-        } finally {
-            setCargando(false);
         }
     };
 
     return (
         <>
-            {/* --- SECCIÓN IZQUIERDA: Título --- */}
             <div>
-                {/* NUEVO: Se aplica el estilo de título coherente con el nuevo diseño. */}
                 <h1 className="text-slate-200 font-black text-5xl md:text-6xl">
                     Recupera tu Acceso y no Pierdas tus{" "}
                     <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">
@@ -81,31 +52,40 @@ const OlvidePassword = () => {
                 </h1>
             </div>
 
-            {/* --- SECCIÓN DERECHA: Formulario --- */}
             <div className="w-full shadow-lg p-8 rounded-xl bg-white border-t-4 border-teal-500">
                 <AlertaEstatica alerta={alertaEstatica} />
 
                 {!enviado && (
-                    <form onSubmit={olvidePasswordSubmit}>
-                        <Alerta alerta={alerta} />
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="my-5">
                             <label className="uppercase text-slate-600 block text-xl font-bold">
                                 Correo
                             </label>
-                            {/* NUEVO: Se aplica el estilo de input refinado. */}
                             <input
                                 type="email"
                                 placeholder="Ingresa tu correo..."
-                                className="border border-slate-300 w-full p-3 mt-3 bg-slate-50 rounded-lg 
-                                           focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                className={`border w-full p-3 mt-3 bg-slate-50 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${
+                                    errors.email
+                                        ? "border-red-500"
+                                        : "border-slate-300"
+                                }`}
+                                {...register("email", {
+                                    required: "El correo es obligatorio",
+                                    pattern: {
+                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                        message: "Formato de correo no válido",
+                                    },
+                                })}
                             />
+                            {errors.email && (
+                                <p className="text-red-600 mt-1 text-sm">
+                                    {errors.email.message}
+                                </p>
+                            )}
                         </div>
 
-                        {/* El componente Boton hereda los estilos de Teal */}
-                        <Boton type="submit" disabled={cargando}>
-                            {cargando ? (
+                        <Boton type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? (
                                 <div className="flex justify-center items-center gap-3">
                                     <Spinner />
                                     <span>Enviando...</span>
@@ -117,7 +97,6 @@ const OlvidePassword = () => {
                     </form>
                 )}
 
-                {/* NUEVO: Enlaces de navegación actualizados a la nueva paleta. */}
                 <nav className="my-10 lg:flex lg:justify-between">
                     <Link
                         className="block text-center my-5 text-slate-500 hover:text-teal-600"

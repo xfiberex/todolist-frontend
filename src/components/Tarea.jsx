@@ -1,6 +1,6 @@
 import useTareas from "../hooks/useTareas";
 import formatearFecha from "../../helpers/formatearFecha.js";
-import React from "react";
+import React, { memo } from "react";
 
 const Tarea = React.forwardRef(
     ({ tarea, style, dragAttributes, dragListeners }, ref) => {
@@ -24,7 +24,9 @@ const Tarea = React.forwardRef(
         };
 
         // Se elige qué conjunto de estilos usar basado en el estado de la tarea.
-        const activeBadgeStyles = estado ? completedPriorityBadgeStyles : pendingPriorityBadgeStyles;
+        const activeBadgeStyles = estado
+            ? completedPriorityBadgeStyles
+            : pendingPriorityBadgeStyles;
 
         return (
             // El borde izquierdo refleja la prioridad
@@ -37,17 +39,15 @@ const Tarea = React.forwardRef(
                            border-slate-700
                            border-l-8 
                            ${
-                                estado 
-                                    ? 'border-l-slate-600'
-                                    : (
-                                        prioridad === "Alta" ? "border-l-red-500" :
-                                        prioridad === "Media" ? "border-l-yellow-500" : "border-l-green-500"
-                                    )
+                               estado
+                                   ? "border-l-slate-600"
+                                   : prioridad === "Alta"
+                                   ? "border-l-red-500"
+                                   : prioridad === "Media"
+                                   ? "border-l-yellow-500"
+                                   : "border-l-green-500"
                            }
-                           ${
-                                estado ? 'opacity-70' : 'opacity-100'
-                           }`
-                }
+                           ${estado ? "opacity-70" : "opacity-100"}`}
             >
                 <div className="flex justify-between items-start gap-4">
                     <div
@@ -74,17 +74,21 @@ const Tarea = React.forwardRef(
                     <div className="flex-1">
                         <div className="flex items-center justify-between mb-3">
                             {/* 4. MEJORA DE UX: Se tacha el nombre si la tarea está completada */}
-                            <p className={`font-bold text-xl transition-colors
-                                ${ estado 
-                                    ? 'line-through text-slate-500' 
-                                    : 'text-slate-100' 
-                                }`
-                            }>
+                            <p
+                                className={`font-bold text-xl transition-colors
+                                ${
+                                    estado
+                                        ? "line-through text-slate-500"
+                                        : "text-slate-100"
+                                }`}
+                            >
                                 {nombre}
                             </p>
-                            
+
                             {/* Se usan los estilos activos (vibrantes u opacos) */}
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${activeBadgeStyles[prioridad]}`}>
+                            <span
+                                className={`px-3 py-1 rounded-full text-xs font-bold ${activeBadgeStyles[prioridad]}`}
+                            >
                                 {prioridad}
                             </span>
                         </div>
@@ -161,4 +165,4 @@ const Tarea = React.forwardRef(
     }
 );
 
-export default Tarea;
+export default memo(Tarea);

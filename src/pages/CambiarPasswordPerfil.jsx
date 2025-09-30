@@ -1,94 +1,58 @@
+// src/pages/CambiarPasswordPerfil.jsx
+
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import AdminNav from "../components/AdminNav";
 import useAuth from "../hooks/useAuth";
-
-// --- Importación de Componentes ---
 import Alerta, { AlertaEstatica } from "../components/Alerta";
 import Boton from "../components/Boton";
 import Spinner from "../components/Spinner";
 
 const CambiarPasswordPerfil = () => {
+    // Hooks
     const { actualizarPasswordPerfil, cerrarSesionAuth } = useAuth();
 
-    // --- Estados para el Formulario y Control ---
-    const [passwords, setPasswords] = useState({
-        pwd_actual: "",
-        pwd_nuevo: "",
-        repetir_pwd_nuevo: "",
-    });
-    // Se definen estados para cada tipo de alerta y para la carga
-    const [alerta, setAlerta] = useState({}); // Dinámica para validaciones
-    const [alertaEstatica, setAlertaEstatica] = useState({}); // Estática para resultados
-    const [cargando, setCargando] = useState(false);
+    // Estado de la UI
+    const [alertaEstatica, setAlertaEstatica] = useState({});
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    const handleSubmit = async e => {
-        e.preventDefault();
+    // useForm hook
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm();
 
-        // --- Validaciones usan la alerta dinámica ---
-        if (Object.values(passwords).some(campo => campo === "")) {
-            setAlerta({
-                msg: "Todos los campos son obligatorios",
-                error: true,
-            });
-            return;
-        }
-        if (passwords.pwd_nuevo.length < 6) {
-            setAlerta({
-                msg: "La contraseña nueva debe tener mínimo 6 caracteres",
-                error: true,
-            });
-            return;
-        }
-        if (passwords.pwd_nuevo !== passwords.repetir_pwd_nuevo) {
-            setAlerta({
-                msg: "Las contraseñas nuevas no coinciden",
-                error: true,
-            });
-            return;
-        }
+    // Observar la contraseña nueva para validación
+    const pwd_nuevo_value = watch("pwd_nuevo");
 
-        // --- Limpiamos alertas y activamos el estado de carga ---
-        setAlerta({});
+    // Función de envío
+    const onSubmit = async (data) => {
         setAlertaEstatica({});
-        setCargando(true);
-
         try {
-            const fakeDelay = new Promise(resolve => setTimeout(resolve, 1500));
-            const apiCall = actualizarPasswordPerfil(passwords);
-            const [respuesta] = await Promise.all([apiCall, fakeDelay]);
+            const respuesta = await actualizarPasswordPerfil(data);
 
             setAlertaEstatica(respuesta);
 
-            // 3. SI LA OPERACIÓN FUE EXITOSA, FORZAR EL CIERRE DE SESIÓN
             if (!respuesta.error) {
-                // Limpiamos el formulario inmediatamente para feedback visual
-                setPasswords({
-                    pwd_actual: "",
-                    pwd_nuevo: "",
-                    repetir_pwd_nuevo: "",
-                });
-
+                reset(); // Limpia el formulario
                 setIsLoggingOut(true);
 
-                // Programamos el cierre de sesión para darle tiempo al usuario de leer el mensaje.
                 setTimeout(() => {
-                    // Guardamos un mensaje específico en sessionStorage para mostrarlo en el Login.
                     sessionStorage.setItem(
                         "mensajePostLogout",
                         "Contraseña actualizada. Por favor, inicia sesión de nuevo."
                     );
                     cerrarSesionAuth();
-                    // RutaProtegida se encargará de la redirección al login.
-                }, 3000); // 3 segundos
+                }, 3000);
             }
         } catch {
             setAlertaEstatica({
-                msg: "Ocurrió un error inesperado al cambiar la contraseña",
+                msg: "Ocurrió un error inesperado",
                 error: true,
             });
-        } finally {
-            setCargando(false);
         }
     };
 
@@ -96,7 +60,6 @@ const CambiarPasswordPerfil = () => {
         <>
             <AdminNav />
 
-            {/* NUEVO: Títulos adaptados al tema oscuro */}
             <h2 className="font-black text-4xl text-slate-100 text-center mt-10">
                 Cambio de Contraseña
             </h2>
@@ -108,32 +71,32 @@ const CambiarPasswordPerfil = () => {
             </p>
 
             <div className="flex justify-center">
-                {/* NUEVO: Contenedor del formulario oscuro */}
                 <div className="w-full md:w-1/2 bg-slate-800 border border-slate-700 shadow rounded-lg p-8">
                     <AlertaEstatica alerta={alertaEstatica} />
 
-                    <form onSubmit={handleSubmit}>
-                        <Alerta alerta={alerta} />
-
-                        {/* NUEVO: Labels e Inputs rediseñados */}
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="my-5">
                             <label className="uppercase font-bold text-slate-300">
                                 Contraseña Actual
                             </label>
                             <input
                                 type="password"
-                                className="w-full p-3 mt-3 rounded-lg bg-slate-900 border border-slate-700 text-white
-                                           focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                                name="pwd_actual"
-                                value={passwords.pwd_actual}
+                                className={`w-full p-3 mt-3 rounded-lg bg-slate-900 border text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${
+                                    errors.pwd_actual
+                                        ? "border-red-500"
+                                        : "border-slate-700"
+                                }`}
                                 placeholder="Escribe tu contraseña actual..."
-                                onChange={e =>
-                                    setPasswords({
-                                        ...passwords,
-                                        [e.target.name]: e.target.value,
-                                    })
-                                }
+                                {...register("pwd_actual", {
+                                    required:
+                                        "La contraseña actual es obligatoria",
+                                })}
                             />
+                            {errors.pwd_actual && (
+                                <p className="text-red-600 mt-1 text-sm">
+                                    {errors.pwd_actual.message}
+                                </p>
+                            )}
                         </div>
 
                         <div className="my-5">
@@ -142,58 +105,77 @@ const CambiarPasswordPerfil = () => {
                             </label>
                             <input
                                 type="password"
-                                className="w-full p-3 mt-3 rounded-lg bg-slate-900 border border-slate-700 text-white
-                                           focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                                name="pwd_nuevo"
-                                value={passwords.pwd_nuevo}
+                                className={`w-full p-3 mt-3 rounded-lg bg-slate-900 border text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${
+                                    errors.pwd_nuevo
+                                        ? "border-red-500"
+                                        : "border-slate-700"
+                                }`}
                                 placeholder="Escribe tu contraseña nueva..."
-                                onChange={e =>
-                                    setPasswords({
-                                        ...passwords,
-                                        [e.target.name]: e.target.value,
-                                    })
-                                }
+                                {...register("pwd_nuevo", {
+                                    required:
+                                        "La contraseña nueva es obligatoria",
+                                    minLength: {
+                                        value: 6,
+                                        message:
+                                            "Debe tener al menos 6 caracteres",
+                                    },
+                                })}
                             />
+                            {errors.pwd_nuevo && (
+                                <p className="text-red-600 mt-1 text-sm">
+                                    {errors.pwd_nuevo.message}
+                                </p>
+                            )}
                         </div>
+
                         <div className="my-5">
                             <label className="uppercase font-bold text-slate-300">
                                 Repetir Contraseña Nueva
                             </label>
                             <input
                                 type="password"
-                                className="w-full p-3 mt-3 rounded-lg bg-slate-900 border border-slate-700 text-white
-                                           focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                                name="repetir_pwd_nuevo"
-                                value={passwords.repetir_pwd_nuevo}
+                                className={`w-full p-3 mt-3 rounded-lg bg-slate-900 border text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 ${
+                                    errors.repetir_pwd_nuevo
+                                        ? "border-red-500"
+                                        : "border-slate-700"
+                                }`}
                                 placeholder="Repite tu contraseña nueva..."
-                                onChange={e =>
-                                    setPasswords({
-                                        ...passwords,
-                                        [e.target.name]: e.target.value,
-                                    })
-                                }
+                                {...register("repetir_pwd_nuevo", {
+                                    required:
+                                        "Debes confirmar la contraseña nueva",
+                                    validate: (value) =>
+                                        value === pwd_nuevo_value ||
+                                        "Las contraseñas nuevas no coinciden",
+                                })}
                             />
+                            {errors.repetir_pwd_nuevo && (
+                                <p className="text-red-600 mt-1 text-sm">
+                                    {errors.repetir_pwd_nuevo.message}
+                                </p>
+                            )}
                         </div>
 
                         <p className="bg-slate-800 border border-slate-700 shadow rounded-lg text-slate-300 p-5 text-center">
-                            Por motivos de seguridad, tu sesión se cerrará después de cambiar la
-                            contraseña y deberás volver a iniciar sesión.
+                            Por seguridad, tu sesión se cerrará al cambiar la
+                            contraseña.
                         </p>
 
-                        {/* Se reemplaza el input por el componente Boton */}
-                        <Boton type="submit" disabled={cargando || isLoggingOut}>
+                        <Boton
+                            type="submit"
+                            disabled={isSubmitting || isLoggingOut}
+                        >
                             {isLoggingOut ? (
                                 <div className="flex justify-center items-center gap-3">
                                     <Spinner />
                                     <span>Cerrando Sesión...</span>
-                                </div> // Mensaje final
-                            ) : cargando ? (
+                                </div>
+                            ) : isSubmitting ? (
                                 <div className="flex justify-center items-center gap-3">
                                     <Spinner />
                                     <span>Actualizando...</span>
                                 </div>
                             ) : (
-                                "Actualizar Contraseña" // Estado por defecto
+                                "Actualizar Contraseña"
                             )}
                         </Boton>
                     </form>

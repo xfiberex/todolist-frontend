@@ -1,107 +1,82 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form"; // 1. Importar el hook de React Hook Form
 import clienteAxios from "../../config/axios";
 import useAuth from "../hooks/useAuth";
-
-// --- Importación de Componentes ---
 import Alerta from "../components/Alerta";
 import Boton from "../components/Boton";
 import Spinner from "../components/Spinner";
 
 const Login = () => {
-    // --- Estados para Campos ---
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-
-    // --- Estados para las Alertas ---
+    // Hooks de estado y navegación
     const [alerta, setAlerta] = useState({});
-
-    // --- Estado para la carga ---
-    const [cargando, setCargando] = useState(false);
-
-    // --- Autenticación ---
     const { setAuth } = useAuth();
-
-    // --- Navegación ---
     const navigate = useNavigate();
 
-    // 5. AÑADIR USEEFFECT PARA LEER EL MENSAJE DE SESSIONSTORAGE
+    // 2. Inicializar React Hook Form
+    //    - register: Vincula los inputs al formulario.
+    //    - handleSubmit: Envuelve nuestra función de envío y gestiona la validación.
+    //    - formState: Provee información sobre el estado del formulario.
+    //      - errors: Objeto con los errores de validación.
+    //      - isSubmitting: Reemplaza nuestro estado 'cargando' manual. Es 'true' mientras se ejecuta la función de envío.
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm({
+        defaultValues: { // Es una buena práctica definir los valores iniciales
+            email: "",
+            password: "",
+        },
+    });
+
+    // Efecto para mostrar mensajes después de un logout (ej. cambio de contraseña).
     useEffect(() => {
-        const mensaje = sessionStorage.getItem('mensajePostLogout');
+        const mensaje = sessionStorage.getItem("mensajePostLogout");
         if (mensaje) {
-            setAlerta({
-                msg: mensaje,
-                error: false // Asumimos que es un mensaje informativo
-            });
-            sessionStorage.removeItem('mensajePostLogout'); // Limpiar para que no se muestre de nuevo
+            setAlerta({ msg: mensaje, error: false });
+            sessionStorage.removeItem("mensajePostLogout"); // Limpiar para no mostrarlo de nuevo
         }
-    }, []); // El array vacío asegura que se ejecute solo una vez al cargar el componente
+    }, []);
 
-    // --- Funciones ---
-    const loginSubmit = async (e) => {
-        e.preventDefault();
-
-        if ([email, password].includes("")) {
-            setAlerta({ msg: "Hay campos vacíos", error: true });
-            return;
-        }
-
-        setAlerta({});
-        setCargando(true);
-
+    // 3. La función de envío ahora recibe los 'data' del formulario directamente.
+    //    Ya no necesita 'e.preventDefault()' ni validaciones manuales.
+    const onSubmit = async (data) => {
+        setAlerta({}); // Limpia alertas previas
         try {
-            // Creamos una promesa para el retardo ficticio de 1 segundos
-            const fakeDelay = new Promise((resolve) =>
-                setTimeout(resolve, 1000)
-            );
+            // El 'fakeDelay' se puede quitar si ya no se desea simular una carga
+            const fakeDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+            const apiCall = clienteAxios.post("/usuarios/login", data);
 
-            // Hacemos la llamada a la API
-            const apiCall = clienteAxios.post("/usuarios/login", {
-                email,
-                password,
-            });
-
-            // Esperamos a que tanto la llamada a la API como el retardo de 2 segundos terminen
             const [apiResponse] = await Promise.all([apiCall, fakeDelay]);
-            const { data } = apiResponse;
-
-            localStorage.setItem("token", data.token);
-            setAuth(data);
+            
+            localStorage.setItem("token", apiResponse.data.token);
+            setAuth(apiResponse.data);
             navigate("/admin");
+
         } catch (error) {
-            setAlerta({ msg: error.response.data.msg, error: true });
-        } finally {
-            setCargando(false);
+            setAlerta({ msg: error.response?.data?.msg || "Error en el servidor", error: true });
         }
     };
 
     return (
         <>
-            {/* --- SECCIÓN IZQUIERDA: Título y Bienvenida --- */}
+            {/* --- Sección Izquierda: Título y Bienvenida --- */}
             <div>
-                {/* 
-                  NUEVO: El texto del título ahora es claro (text-slate-200) para 
-                  resaltar sobre el fondo oscuro del nuevo layout.
-                */}
                 <h1 className="text-slate-200 font-black text-5xl md:text-6xl">
                     Inicia Sesión y Administra tus{" "}
-                    {/* 
-                      NUEVO: Se aplica un gradiente de Teal a Cyan al texto
-                      clave para un efecto visual moderno y atractivo.
-                    */}
                     <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">
                         Tareas
                     </span>
                 </h1>
             </div>
 
-            {/* --- SECCIÓN DERECHA: Formulario --- */}
-            <div
-                className="w-full shadow-lg p-8 rounded-xl bg-white 
-                           border-t-4 border-teal-500" // NUEVO: Un borde superior sutil con el color de acento
-            >
+            {/* --- Sección Derecha: Formulario --- */}
+            <div className="w-full shadow-lg p-8 rounded-xl bg-white border-t-4 border-teal-500">
                 {alerta.msg && <Alerta alerta={alerta} />}
-                <form onSubmit={loginSubmit}>
+
+                {/* 4. El 'onSubmit' del formulario se gestiona con handleSubmit de React Hook Form */}
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="my-5">
                         <label className="uppercase text-slate-600 block text-xl font-bold">
                             Correo
@@ -109,12 +84,20 @@ const Login = () => {
                         <input
                             type="email"
                             placeholder="Ingresa tu correo..."
-                            // NUEVO: Estilos de input refinados para un look más limpio.
-                            className="border border-slate-300 w-full p-3 mt-3 bg-slate-50 rounded-lg 
-                                       focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            className={`border w-full p-3 mt-3 bg-slate-50 rounded-lg 
+                                       focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500
+                                       ${errors.email ? 'border-red-500' : 'border-slate-300'}`}
+                            // 5. 'register' conecta el input y define las reglas de validación.
+                            {...register("email", {
+                                required: "El correo es obligatorio",
+                                pattern: {
+                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                    message: "El formato del correo no es válido",
+                                },
+                            })}
                         />
+                        {/* Muestra el mensaje de error si la validación falla */}
+                        {errors.email && <p className="text-red-600 mt-1 text-sm">{errors.email.message}</p>}
                     </div>
 
                     <div className="my-5">
@@ -124,17 +107,19 @@ const Login = () => {
                         <input
                             type="password"
                             placeholder="Ingresa tu contraseña..."
-                            // NUEVO: Se aplican los mismos estilos refinados al input de contraseña.
-                            className="border border-slate-300 w-full p-3 mt-3 bg-slate-50 rounded-lg 
-                                       focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            className={`border w-full p-3 mt-3 bg-slate-50 rounded-lg 
+                                       focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500
+                                       ${errors.password ? 'border-red-500' : 'border-slate-300'}`}
+                            {...register("password", {
+                                required: "La contraseña es obligatoria",
+                            })}
                         />
+                        {errors.password && <p className="text-red-600 mt-1 text-sm">{errors.password.message}</p>}
                     </div>
 
-                    {/* El componente Boton ya hereda los nuevos estilos de Teal */}
-                    <Boton type="submit" disabled={cargando}>
-                        {cargando ? (
+                    {/* 6. El estado 'disabled' del botón ahora es controlado por 'isSubmitting'. */}
+                    <Boton type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? (
                             <div className="flex justify-center items-center gap-3">
                                 <Spinner />
                                 <span>Iniciando Sesión...</span>
@@ -146,7 +131,6 @@ const Login = () => {
                 </form>
 
                 <nav className="my-10 lg:flex lg:justify-between">
-                    {/* NUEVO: Se actualiza el color del hover para que coincida con la nueva paleta. */}
                     <Link
                         className="block text-center my-5 text-slate-500 hover:text-teal-600"
                         to="/registrar"
