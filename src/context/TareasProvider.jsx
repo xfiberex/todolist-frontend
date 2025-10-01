@@ -29,6 +29,9 @@ const TareasProvider = ({ children }) => {
     const [tareaAEliminar, setTareaAEliminar] = useState(null);
     const [cargandoEliminacion, setCargandoEliminacion] = useState(false);
 
+    // --- ESTADOS PARA EL MODAL DEL FORMULARIO MOVIL ---
+    const [modalFormAbierto, setModalFormAbierto] = useState(false);
+
     const { auth } = useAuth();
 
     // EFECTO: OBTENER TAREAS
@@ -123,9 +126,15 @@ const TareasProvider = ({ children }) => {
         }
     };
 
-    const setEdicion = tarea => setTarea(tarea);
+    const setEdicion = tarea => {
+        setTarea(tarea);
+        setModalFormAbierto(true); // Abre el modal al editar
+    };
 
-    const cancelarEdicionTarea = () => setTarea({});
+    const cancelarEdicionTarea = () => {
+        setTarea({});
+        setModalFormAbierto(false); // Cierra el modal al cancelar
+    };
 
     const eliminarTarea = async () => {
         if (!tareaAEliminar) return; // Salvaguarda
@@ -189,6 +198,17 @@ const TareasProvider = ({ children }) => {
         setTimeout(() => setTareaAEliminar(null), 300); 
     };
 
+    // --- Función para abrir el modal para una nueva tarea ---
+    const handleAbrirModalForm = () => {
+        setTarea({}); // Asegurarse de que no hay datos de edición
+        setModalFormAbierto(true);
+    }
+    
+    // --- Función para cerrar el modal ---
+    const handleCerrarModalForm = () => {
+        setModalFormAbierto(false);
+    }
+
     const limpiarFiltros = () => {
         setBusqueda("");
         setFiltroFechaDesde("");
@@ -231,9 +251,16 @@ const TareasProvider = ({ children }) => {
                 handleCloseModalEliminar,
                 tareaAEliminar,
                 cargandoEliminacion,
+
+                // --- Exportar props para el modal del formulario movil ---
+                modalFormAbierto,
+                handleAbrirModalForm,
+                handleCerrarModalForm
             }}
         >
-            {children}
+            <div onKeyDown={e => e.key === 'Escape' && handleCerrarModalForm()}>
+                {children}
+            </div>
         </TareasContext.Provider>
     );
 };

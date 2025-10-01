@@ -3,88 +3,81 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import clienteAxios from "../../config/axios";
-
-// --- Importación de Componentes ---
+import AuthBranding from "../components/AuthBranding";
 import Alerta from "../components/Alerta";
-import Spinner from "../components/Spinner";
+
+// --- Iconos para Éxito y Error ---
+const IconoExito = () => (
+    <svg className="h-16 w-16 text-green-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+const IconoError = () => (
+    <svg className="h-16 w-16 text-red-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 
 const ConfirmarCuenta = () => {
-    // --- Estados ---
-    const [cuentaConfirmada, setCuentaConfirmada] = useState(false);
     const [cargando, setCargando] = useState(true);
     const [alerta, setAlerta] = useState({});
 
-    // --- Parametros ---
-    const params = useParams();
-    // CORRECCIÓN: Se debe extraer 'token', no 'id'.
-    const { token } = params;
+    const { token } = useParams();
 
-    // --- Efectos  ---
     useEffect(() => {
         const confirmarCuenta = async () => {
             try {
-                // CORRECCIÓN: La URL debe usar el token extraído.
                 const url = `/usuarios/confirmar/${token}`;
                 const { data } = await clienteAxios(url);
-
-                setCuentaConfirmada(true);
-                setAlerta({
-                    msg: data.msg,
-                    error: false,
-                });
+                setAlerta({ msg: data.msg, error: false });
             } catch (error) {
-                setAlerta({
-                    msg: error.response.data.msg,
-                    error: true,
-                });
+                setAlerta({ msg: error.response?.data?.msg || "Error al confirmar la cuenta", error: true });
             }
             setCargando(false);
         };
         confirmarCuenta();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // La dependencia vacía es correcta para que se ejecute solo una vez.
+    }, [token]);
 
     return (
         <>
-            {/* --- SECCIÓN IZQUIERDA: Título --- */}
-            <div>
-                {/* 
-                  NUEVO: Se aplica el mismo estilo de título que en el Login:
-                  texto claro (text-slate-200) y gradiente en la palabra clave.
-                  Nota: He mantenido tu texto original "Pacientes", pero con el nuevo estilo.
-                  Si quieres cambiarlo a "Tareas", puedes hacerlo aquí.
-                */}
-                <h1 className="text-slate-200 font-black text-5xl md:text-6xl">
-                    Confirma tu Cuenta y Administra tus{" "}
-                    <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">
-                        Tareas
-                    </span>
-                </h1>
-            </div>
-
-            {/* --- SECCIÓN DERECHA: Tarjeta de Contenido --- */}
-            {/* 
-              NUEVO: El contenedor del mensaje ahora usa el estilo de tarjeta blanca
-              con borde 'teal' para consistencia visual.
-            */}
-            <div className="w-full shadow-lg p-8 rounded-xl bg-white border-t-4 border-teal-500">
-                {cargando ? (
-                    <Spinner />
-                ) : (
+            <AuthBranding 
+                title={
                     <>
-                        <Alerta alerta={alerta} />
-                        {cuentaConfirmada && (
-                            <Link
-                                // NUEVO: El link-botón ahora usa la paleta 'teal'.
-                                className="block text-center mt-10 py-3 px-10 mx-auto w-fit
-                                text-white border rounded-lg bg-teal-600 hover:bg-teal-700 transition-colors"
-                                to="/"
-                            >
-                                Iniciar Sesión
-                            </Link>
-                        )}
+                        ¡Casi Listo! Confirma tu{" "}
+                        <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">
+                            Cuenta
+                        </span>
                     </>
-                )}
+                }
+                subtitle="Este último paso asegura que tu cuenta es segura y está lista para ser usada."
+            />
+            
+            {/* 
+                Usamos AuthFormCard pero sin el prop 'title' para tener
+                más control sobre el contenido interno.
+            */}
+            <div className="w-full max-w-lg mx-auto">
+                <div className="bg-white rounded-xl shadow-lg border-t-4 border-teal-500 p-8 text-center">
+                    
+                    {cargando ? (
+                        <p className="text-slate-600">Verificando...</p>
+                    ) : (
+                        <>
+                            {alerta.error ? <IconoError/> : <IconoExito/>}
+                            <Alerta alerta={alerta} />
+                            
+                            {!alerta.error && (
+                                <Link
+                                    className="block text-center mt-10 py-3 px-10 mx-auto w-fit text-white border rounded-lg bg-teal-600 hover:bg-teal-700 transition-colors"
+                                    to="/"
+                                >
+                                    Iniciar Sesión
+                                </Link>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
         </>
     );

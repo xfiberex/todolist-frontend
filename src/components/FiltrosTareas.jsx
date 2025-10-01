@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import useTareas from "../hooks/useTareas";
 
 const FiltrosTareas = () => {
-    const { 
-        setBusqueda, 
-        setFiltroFechaDesde, 
-        setFiltroFechaHasta, 
-        setFiltroPrioridad, 
-        setOrden, 
+    const {
+        setBusqueda,
+        setFiltroFechaDesde,
+        setFiltroFechaHasta,
+        setFiltroPrioridad,
+        setOrden,
         limpiarFiltros,
-        filtros
+        filtros,
     } = useTareas();
 
     const [busquedaLocal, setBusquedaLocal] = useState(filtros.busqueda);
@@ -23,7 +23,7 @@ const FiltrosTareas = () => {
         }, 300);
         return () => clearTimeout(handler);
     }, [busquedaLocal, setBusqueda]);
-    
+
     // ---- CORRECCIÓN ----
     // Este efecto sincroniza el estado local de la búsqueda (busquedaLocal)
     // con el estado global del contexto (filtros.busqueda). Es necesario para que
@@ -38,7 +38,7 @@ const FiltrosTareas = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* Búsqueda */}
                 <div className="lg:col-span-2">
-                    <input 
+                    <input
                         type="text"
                         placeholder="Buscar por nombre o descripción..."
                         className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white
@@ -47,12 +47,12 @@ const FiltrosTareas = () => {
                         onChange={e => setBusquedaLocal(e.target.value)}
                     />
                 </div>
-                
+
                 {/* Prioridad */}
                 <div>
                     <select
-                        className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white"
-                        value={filtros.prioridad} 
+                        className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white appearance-none cursor-pointer pr-10"
+                        value={filtros.prioridad}
                         onChange={e => setFiltroPrioridad(e.target.value)}
                     >
                         <option value="todas">Todas las prioridades</option>
@@ -64,18 +64,26 @@ const FiltrosTareas = () => {
 
                 {/* Fechas */}
                 <div>
-                    <input type="date" className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white" 
-                           value={filtros.fechaDesde} onChange={e => setFiltroFechaDesde(e.target.value)} />
+                    <input
+                        type="date"
+                        className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white"
+                        value={filtros.fechaDesde}
+                        onChange={e => setFiltroFechaDesde(e.target.value)}
+                    />
                 </div>
                 <div>
-                    <input type="date" className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white"
-                           value={filtros.fechaHasta} onChange={e => setFiltroFechaHasta(e.target.value)} />
+                    <input
+                        type="date"
+                        className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white"
+                        value={filtros.fechaHasta}
+                        onChange={e => setFiltroFechaHasta(e.target.value)}
+                    />
                 </div>
 
                 {/* Orden */}
                 <div className="lg:col-span-2">
                     <select
-                        className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white"
+                        className="w-full rounded-md p-2 bg-slate-900 border border-slate-700 text-white appearance-none cursor-pointer pr-10" // <-- CLASES AÑADIDAS AQUÍ
                         value={filtros.orden}
                         onChange={e => setOrden(e.target.value)}
                     >
@@ -88,7 +96,7 @@ const FiltrosTareas = () => {
 
                 {/* Limpiar */}
                 <div className="lg:col-span-3 flex items-end">
-                    <button 
+                    <button
                         onClick={limpiarFiltros}
                         className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg w-full md:w-auto"
                     >
