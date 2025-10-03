@@ -79,6 +79,25 @@ const TareasProvider = ({ children }) => {
     useEffect(() => {
         let resultado = [...tareas];
 
+        // Helpers para comparar por día en UTC (precisión día sin desfasajes)
+        const parseYMDToUtcEpoch = (ymd) => {
+            // ymd: "YYYY-MM-DD"
+            const [yy, mm, dd] = ymd.split("-").map(n => parseInt(n, 10));
+            return Date.UTC(yy, mm - 1, dd);
+        };
+        const taskUtcDayEpoch = (value) => {
+            const d = new Date(value);
+            return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+        };
+
+        // Normalizar rango cuando ambas fechas están presentes
+        let desde = filtroFechaDesde || '';
+        let hasta = filtroFechaHasta || '';
+        if (desde && hasta && desde > hasta) {
+            // Si el usuario invierte el rango, lo corregimos
+            [desde, hasta] = [hasta, desde];
+        }
+
         // Filtro por Búsqueda de texto
         if (busqueda) {
             resultado = resultado.filter(
@@ -94,15 +113,13 @@ const TareasProvider = ({ children }) => {
         }
 
         // Se comparan las fechas como cadenas 'YYYY-MM-DD' para evitar problemas de zona horaria.
-        if (filtroFechaDesde) {
-            resultado = resultado.filter(
-                t => new Date(t.fechaEntrega).toISOString().slice(0, 10) >= filtroFechaDesde
-            );
+        if (desde) {
+            const desdeEpoch = parseYMDToUtcEpoch(desde);
+            resultado = resultado.filter(t => taskUtcDayEpoch(t.fechaEntrega) >= desdeEpoch);
         }
-        if (filtroFechaHasta) {
-            resultado = resultado.filter(
-                t => new Date(t.fechaEntrega).toISOString().slice(0, 10) <= filtroFechaHasta
-            );
+        if (hasta) {
+            const hastaEpoch = parseYMDToUtcEpoch(hasta);
+            resultado = resultado.filter(t => taskUtcDayEpoch(t.fechaEntrega) <= hastaEpoch);
         }
 
         // Si el orden es manual, se respeta el orden actual del array (el del drag-and-drop).

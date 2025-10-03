@@ -55,7 +55,7 @@ const SortableTareaItem = ({ tarea }) => {
 
 
 const ListaTareas = () => {
-    const { tareas, reordenarTareas } = useTareas();
+    const { tareas, reordenarTareas, filtrosActivos, limpiarFiltros, handleAbrirModalFiltros } = useTareas();
 
     // 4. NUEVO ESTADO: Para guardar la tarea que se está arrastrando activamente
     const [activeTarea, setActiveTarea] = useState(null);
@@ -159,10 +159,34 @@ const ListaTareas = () => {
                 )}
 
                 {tareas.length === 0 && (
-                    <p className="text-center mt-20 text-slate-400">
-                        Comienza agregando una tarea
-                        <span className="text-teal-400 font-bold"> y aparecerá en este lugar</span>
-                    </p>
+                    filtrosActivos > 0 ? (
+                        <div className="text-center mt-20">
+                            <p className="text-slate-300 mb-6">
+                                No hay tareas que coincidan con los filtros aplicados.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button
+                                    type="button"
+                                    onClick={limpiarFiltros}
+                                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-lg"
+                                >
+                                    Limpiar filtros
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleAbrirModalFiltros}
+                                    className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg"
+                                >
+                                    Ajustar filtros
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-center mt-20 text-slate-400">
+                            Comienza agregando una tarea
+                            <span className="text-teal-400 font-bold"> y aparecerá en este lugar</span>
+                        </p>
+                    )
                 )}
             </>
             
