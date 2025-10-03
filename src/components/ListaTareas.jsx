@@ -118,10 +118,8 @@ const ListaTareas = () => {
                     Tareas Pendientes
                 </h2>
                 <p className="text-xl mt-5 mb-10 text-center text-slate-300">
-                    Administra tus {""}
-                    <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent font-bold">
-                        tareas y proyectos
-                    </span>
+                    Administra tus
+                    <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent font-bold"> tareas y proyectos</span>
                 </p>
 
                 <SortableContext
@@ -141,7 +139,7 @@ const ListaTareas = () => {
                             Tareas Completadas
                         </h2>
                         <p className="text-xl mt-5 mb-10 text-center text-slate-300">
-                            Revisa tus tareas {""}
+                            Revisa tus tareas
                             <span className="text-green-400 font-bold"> finalizadas</span>
                         </p>
                         <SortableContext
@@ -162,10 +160,8 @@ const ListaTareas = () => {
 
                 {tareas.length === 0 && (
                     <p className="text-center mt-20 text-slate-400">
-                        Comienza agregando una tarea {""}
-                        <span className="text-teal-400 font-bold">
-                            y aparecerá en este lugar
-                        </span>
+                        Comienza agregando una tarea
+                        <span className="text-teal-400 font-bold"> y aparecerá en este lugar</span>
                     </p>
                 )}
             </>

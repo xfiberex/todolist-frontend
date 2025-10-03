@@ -19,7 +19,7 @@ const TareasProvider = ({ children }) => {
     const [filtroPrioridad, setFiltroPrioridad] = useState("todas");
     const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
     const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
-    const [orden, setOrden] = useState("fecha-asc");
+    const [orden, setOrden] = useState("orden-manual");
 
     // ESTADO PARA TAREAS FILTRADAS Y ORDENADAS
     const [tareasFiltradas, setTareasFiltradas] = useState([]);
@@ -32,6 +32,9 @@ const TareasProvider = ({ children }) => {
     // --- ESTADOS PARA EL MODAL DEL FORMULARIO MOVIL ---
     const [modalFormAbierto, setModalFormAbierto] = useState(false);
 
+    // --- ESTADOS PARA EL MODAL DE FILTROS ---
+    const [modalFiltrosAbierto, setModalFiltrosAbierto] = useState(false);
+
     const { auth } = useAuth();
 
     // EFECTO: OBTENER TAREAS
@@ -43,14 +46,21 @@ const TareasProvider = ({ children }) => {
                 const token = localStorage.getItem("token");
                 if (!token) return;
 
-                const config = { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } };
+                const config = {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                };
                 const { data: tareasDesdeAPI } = await clienteAxios.get("/tareas", config);
 
                 const ordenGuardado = await obtenerOrden(auth._id);
 
                 if (ordenGuardado) {
                     const tareasMap = new Map(tareasDesdeAPI.map(t => [t._id, t]));
-                    const tareasExistentes = ordenGuardado.map(id => tareasMap.get(id)).filter(Boolean);
+                    const tareasExistentes = ordenGuardado
+                        .map(id => tareasMap.get(id))
+                        .filter(Boolean);
                     const tareasNuevas = tareasDesdeAPI.filter(t => !ordenGuardado.includes(t._id));
                     setTareas([...tareasExistentes, ...tareasNuevas]);
                 } else {
@@ -68,33 +78,49 @@ const TareasProvider = ({ children }) => {
     useEffect(() => {
         let resultado = [...tareas];
 
+        // Filtro por Búsqueda de texto
         if (busqueda) {
-            resultado = resultado.filter(t => t.nombre.toLowerCase().includes(busqueda.toLowerCase()) || t.descripcion.toLowerCase().includes(busqueda.toLowerCase()));
+            resultado = resultado.filter(
+                t =>
+                    t.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+                    t.descripcion.toLowerCase().includes(busqueda.toLowerCase())
+            );
         }
 
+        // Filtro por Prioridad
         if (["Alta", "Media", "Baja"].includes(filtroPrioridad)) {
             resultado = resultado.filter(t => t.prioridad === filtroPrioridad);
         }
 
+        // Se comparan las fechas como cadenas 'YYYY-MM-DD' para evitar problemas de zona horaria.
         if (filtroFechaDesde) {
-            resultado = resultado.filter(t => new Date(t.fechaEntrega) >= new Date(filtroFechaDesde));
+            resultado = resultado.filter(
+                t => new Date(t.fechaEntrega).toISOString().slice(0, 10) >= filtroFechaDesde
+            );
         }
         if (filtroFechaHasta) {
-            const fechaHastaAjustada = new Date(filtroFechaHasta);
-            fechaHastaAjustada.setDate(fechaHastaAjustada.getDate() + 1);
-            resultado = resultado.filter(t => new Date(t.fechaEntrega) < fechaHastaAjustada);
+            resultado = resultado.filter(
+                t => new Date(t.fechaEntrega).toISOString().slice(0, 10) <= filtroFechaHasta
+            );
         }
 
-        const prioridadValor = { Alta: 1, Media: 2, Baja: 3 };
-        resultado.sort((a, b) => {
-            switch (orden) {
-                case "fecha-desc": return new Date(b.fechaEntrega) - new Date(a.fechaEntrega);
-                case "prioridad-asc": return prioridadValor[a.prioridad] - prioridadValor[b.prioridad];
-                case "prioridad-desc": return prioridadValor[b.prioridad] - prioridadValor[a.prioridad];
-                case "fecha-asc":
-                default: return new Date(a.fechaEntrega) - new Date(b.fechaEntrega);
-            }
-        });
+        // Si el orden es manual, se respeta el orden actual del array (el del drag-and-drop).
+        if (orden !== "orden-manual") {
+            const prioridadValor = { Alta: 1, Media: 2, Baja: 3 };
+            resultado.sort((a, b) => {
+                switch (orden) {
+                    case "fecha-desc":
+                        return new Date(b.fechaEntrega) - new Date(a.fechaEntrega);
+                    case "prioridad-asc":
+                        return prioridadValor[a.prioridad] - prioridadValor[b.prioridad];
+                    case "prioridad-desc":
+                        return prioridadValor[b.prioridad] - prioridadValor[a.prioridad];
+                    case "fecha-asc":
+                    default:
+                        return new Date(a.fechaEntrega) - new Date(b.fechaEntrega);
+                }
+            });
+        }
 
         setTareasFiltradas(resultado);
     }, [tareas, busqueda, filtroPrioridad, filtroFechaDesde, filtroFechaHasta, orden]);
@@ -103,9 +129,12 @@ const TareasProvider = ({ children }) => {
 
     const guardarTarea = async tarea => {
         const token = localStorage.getItem("token");
-        const config = { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } };
+        const config = {
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        };
 
-        if (tarea.id) { // Actualizar
+        if (tarea.id) {
+            // Actualizar
             try {
                 const { data } = await clienteAxios.put(`/tareas/${tarea.id}`, tarea, config);
                 const tareasActualizadas = tareas.map(t => (t._id === data._id ? data : t));
@@ -115,7 +144,8 @@ const TareasProvider = ({ children }) => {
             } catch (error) {
                 return { msg: error.response.data.msg, error: true };
             }
-        } else { // Crear
+        } else {
+            // Crear
             try {
                 const { data } = await clienteAxios.post("/tareas", tarea, config);
                 setTareas([data, ...tareas]);
@@ -142,16 +172,17 @@ const TareasProvider = ({ children }) => {
         setCargandoEliminacion(true);
         try {
             const token = localStorage.getItem("token");
-            const config = { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } };
-            
+            const config = {
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            };
+
             await clienteAxios.delete(`/tareas/${tareaAEliminar._id}`, config);
-            
+
             const tareasActualizadas = tareas.filter(t => t._id !== tareaAEliminar._id);
             setTareas(tareasActualizadas);
-            
-            setAlerta({ msg: 'Tarea Eliminada Correctamente', error: false });
+
+            setAlerta({ msg: "Tarea Eliminada Correctamente", error: false });
             handleCloseModalEliminar(); // Cierra el modal después del éxito
-        
         } catch (error) {
             console.error(error);
             // Puedes establecer una alerta de error aquí si lo deseas
@@ -163,7 +194,9 @@ const TareasProvider = ({ children }) => {
     const cambiarEstadoTarea = async id => {
         try {
             const token = localStorage.getItem("token");
-            const config = { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } };
+            const config = {
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            };
             const { data } = await clienteAxios.post(`/tareas/estado/${id}`, {}, config);
             const tareasActualizadas = tareas.map(t => (t._id === data._id ? data : t));
             setTareas(tareasActualizadas);
@@ -186,7 +219,7 @@ const TareasProvider = ({ children }) => {
 
     // --- Función para ABRIR el modal ---
     // Recibe la tarea completa para poder mostrar su nombre
-    const handleModalEliminar = (tarea) => {
+    const handleModalEliminar = tarea => {
         setTareaAEliminar(tarea);
         setModalEliminar(true);
     };
@@ -195,26 +228,31 @@ const TareasProvider = ({ children }) => {
     const handleCloseModalEliminar = () => {
         setModalEliminar(false);
         // Pequeño delay para que no se vea el cambio de nombre antes de que se cierre
-        setTimeout(() => setTareaAEliminar(null), 300); 
+        setTimeout(() => setTareaAEliminar(null), 300);
     };
 
     // --- Función para abrir el modal para una nueva tarea ---
     const handleAbrirModalForm = () => {
         setTarea({}); // Asegurarse de que no hay datos de edición
         setModalFormAbierto(true);
-    }
-    
+    };
+
     // --- Función para cerrar el modal ---
     const handleCerrarModalForm = () => {
         setModalFormAbierto(false);
-    }
+    };
 
+    // --- Abrir/Cerrar modal de filtros ---
+    const handleAbrirModalFiltros = () => setModalFiltrosAbierto(true);
+    const handleCerrarModalFiltros = () => setModalFiltrosAbierto(false);
+
+    // ---- `limpiarFiltros` ahora resetea a 'orden-manual' ----
     const limpiarFiltros = () => {
         setBusqueda("");
         setFiltroFechaDesde("");
         setFiltroFechaHasta("");
         setFiltroPrioridad("todas");
-        setOrden("fecha-asc");
+        setOrden("orden-manual");
     };
 
     return (
@@ -255,12 +293,15 @@ const TareasProvider = ({ children }) => {
                 // --- Exportar props para el modal del formulario movil ---
                 modalFormAbierto,
                 handleAbrirModalForm,
-                handleCerrarModalForm
+                handleCerrarModalForm,
+
+                // --- Exportar props para el modal de filtros ---
+                modalFiltrosAbierto,
+                handleAbrirModalFiltros,
+                handleCerrarModalFiltros,
             }}
         >
-            <div onKeyDown={e => e.key === 'Escape' && handleCerrarModalForm()}>
-                {children}
-            </div>
+            <div onKeyDown={e => e.key === "Escape" && handleCerrarModalForm()}>{children}</div>
         </TareasContext.Provider>
     );
 };

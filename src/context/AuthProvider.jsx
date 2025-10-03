@@ -67,18 +67,21 @@ export const AuthProvider = ({ children }) => {
         };
 
         try {
-            await clienteAxios.put(
-                `/usuarios/perfil/${datos._id}`,
+            const { data } = await clienteAxios.put(
+                `/usuarios/perfil`,
                 datos,
                 config
             );
 
-            // Sincronizar el estado de auth con los datos actualizados
-            setAuth(prevAuth => ({ ...prevAuth, ...datos }));
+            // Sincronizar el estado de auth con los datos actualizados devueltos por el backend
+            if (data?.usuario) {
+                setAuth(prevAuth => ({ ...prevAuth, ...data.usuario }));
+            }
 
             return {
-                msg: "Almacenado correctamente",
+                msg: data?.msg || "Almacenado correctamente",
                 error: false,
+                emailCambiado: !!data?.emailCambiado,
             };
         } catch (error) {
             return {
