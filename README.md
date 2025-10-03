@@ -1,60 +1,61 @@
 # Frontend - Gestor de Tareas
 
-Este directorio contiene el código fuente del frontend para la aplicación de gestión de tareas. Es una Single Page Application (SPA) construida con React, diseñada para ofrecer una experiencia de usuario fluida, moderna y responsive.
+SPA en React + Vite con Tailwind. Incluye login/registro, confirmación por email, recuperación de contraseña, panel de tareas con drag & drop y filtros avanzados (modal con transiciones y FABs en móvil).
 
-## ✨ Características Principales
+## ✨ Características
 
-*   **Interfaz Moderna**: Construida con React y estilizada con Tailwind CSS.
-*   **Enrutamiento**: Gestión de rutas del lado del cliente con `react-router-dom`.
-*   **Gestión de Estado Global**: Uso del Context API de React para manejar el estado de la autenticación y las tareas.
-*   **Formularios Interactivos**: Formularios para registro, inicio de sesión y gestión de tareas.
-*   **Rutas Protegidas**: Solo los usuarios autenticados pueden acceder al panel principal de tareas.
-*   **Comunicación con API**: Utiliza `axios` para realizar peticiones HTTP al backend.
-*   **Diseño Responsive**: Adaptable a diferentes tamaños de pantalla, desde móviles hasta escritorio.
+- React 19 + Vite 7
+- Enrutamiento con `react-router-dom` (rutas públicas y protegidas)
+- Context API para auth y tareas
+- Axios con interceptores (JWT en headers y logout automático en 401)
+- Tailwind (estilo oscuro)
+- DnD con `@dnd-kit` (orden manual persistido en IndexedDB)
+- Filtros avanzados: búsqueda, prioridad, rango de fechas y orden; modal con transición y FABs en móvil; contador de filtros activos y botón “Limpiar” (desktop y móvil)
 
-## 🛠️ Tecnologías Utilizadas
+## 🛠️ Requisitos
 
-*   **React**: Biblioteca para construir interfaces de usuario.
-*   **Vite**: Herramienta de desarrollo frontend rápida.
-*   **React Router DOM**: Para el enrutamiento en la aplicación.
-*   **Tailwind CSS**: Framework de CSS "utility-first" para un diseño rápido.
-*   **Axios**: Cliente HTTP para realizar peticiones a la API.
-*   **Context API**: Para la gestión del estado global.
+- Node.js 18+
 
-## 🚀 Instalación y Puesta en Marcha
+## ⚙️ Variables de entorno
 
-1.  **Clonar el repositorio:**
-    ```bash
-    git clone https://github.com/tu-usuario/tu-repositorio.git
-    ```
+Crea un archivo `.env` en `todolist-frontend/` con:
 
-2.  **Navegar al directorio del frontend:**
-    ```bash
-    cd Frontend
-    ```
+```env
+VITE_BACKEND_URL=http://localhost:4000
+```
 
-3.  **Instalar dependencias:**
-    ```bash
-    npm install
-    ```
+## 🚀 Desarrollo (Windows PowerShell)
 
-4.  **Configurar variables de entorno:**
-    Crea un archivo `.env.local` en la raíz del directorio `Frontend/` y añade la URL del backend:
-    ```env
-    VITE_BACKEND_URL=http://localhost:4000
-    ```
+```powershell
+cd "c:\Users\User\Desktop\Cursos y Proyectos\03 - Proyectos de desarrollo\02-ToDoList\todolist-frontend"
+npm install
+npm run dev
+```
 
-5.  **Ejecutar el servidor de desarrollo:**
-    ```bash
-    npm run dev
-    ```
-    La aplicación se abrirá automáticamente en tu navegador, generalmente en `http://localhost:5173`.
+Abrirá la app en `http://localhost:5173`.
 
-## 📦 Build para Producción
+## 🔗 Backend necesario
 
-Para crear una versión optimizada de la aplicación para producción, ejecuta:
+Asegúrate de tener el backend corriendo (ver `todolist-backend/README.md`) y que `VITE_BACKEND_URL` apunte a su URL.
 
-```bash
+## 📦 Build de producción
+
+```powershell
 npm run build
 ```
-Esto generará los archivos estáticos en el directorio `dist/`, listos para ser desplegados en un servidor web.
+
+Genera `dist/` listo para despliegue. Puedes previsualizar con:
+
+```powershell
+npm run preview
+```
+
+## 🧭 Navegación
+
+- Público: `/` (login), `/registrar`, `/confirmar/:token`, `/olvide-password`, `/olvide-password/:token`
+- Privado: `/admin` (panel), `/admin/perfil`, `/admin/cambiar-password-perfil`
+
+## � Notas de UX
+
+- En móvil hay 3 FABs: añadir tarea (+), abrir filtros (embudo, con badge), y limpiar filtros (X, visible solo si hay filtros activos).
+- En desktop, botones en el header: “Añadir Nueva Tarea”, “Filtros” (con contador), y “Limpiar” visible si hay filtros.
