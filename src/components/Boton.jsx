@@ -1,39 +1,39 @@
 // src/components/Boton.jsx
 
 // --- Boton de Cancelación o Secundario ---
-// Se actualiza a tonos 'slate' para mayor consistencia.
 export const BotonCancelacion = ({ children, ...props }) => {
-    return (
-        <button
-            className="w-full md:w-auto bg-slate-500 hover:bg-slate-600 focus:ring-4 focus:ring-slate-300
+  return (
+    <button
+      className="w-full md:w-auto bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 focus:ring-4 focus:ring-slate-300/50
                        text-white font-bold py-3 px-10 rounded-lg mt-5
-                       transition-all duration-300 ease-in-out transform hover:-translate-y-1
-                       focus:outline-none shadow-md hover:shadow-lg
-                       disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed disabled:shadow-none"
-            {...props}
-        >
-            {children}
-        </button>
-    );
-};
+                       transition-all duration-300 ease-out transform hover:scale-[1.02] hover:-translate-y-0.5
+                       focus:outline-none shadow-lg shadow-slate-900/50 hover:shadow-xl hover:shadow-slate-900/60
+                       disabled:bg-gray-400 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed disabled:shadow-none disabled:from-gray-400 disabled:to-gray-400
+                       active:scale-95"
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
 
 // --- Boton Primario ---
-// NUEVO: Se actualiza de 'indigo' a 'teal' y se añaden efectos de sombra.
 const Boton = ({ children, type = "submit", disabled = false, ...props }) => {
-    return (
-        <button
-            type={type}
-            disabled={disabled}
-            className="w-full md:w-auto bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:ring-teal-300
+  return (
+    <button
+      type={type}
+      disabled={disabled}
+      className="w-full md:w-auto bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 focus:ring-4 focus:ring-teal-300/50
                        text-white font-bold py-3 px-10 rounded-lg mt-5
-                       transition-all duration-300 ease-in-out transform hover:-translate-y-1
-                       focus:outline-none shadow-md hover:shadow-lg
-                       disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed disabled:shadow-none"
-            {...props}
-        >
-            {children}
-        </button>
-    );
-};
+                       transition-all duration-300 ease-out transform hover:scale-[1.02] hover:-translate-y-0.5
+                       focus:outline-none shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40
+                       disabled:bg-gray-400 disabled:scale-100 disabled:translate-y-0 disabled:cursor-not-allowed disabled:shadow-none disabled:from-gray-400 disabled:to-gray-400
+                       active:scale-95"
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
 
-export default Boton;
+export default Boton
