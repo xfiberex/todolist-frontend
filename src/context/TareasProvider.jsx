@@ -23,6 +23,7 @@ const TareasProvider = ({ children }) => {
 
     // ESTADO PARA TAREAS FILTRADAS Y ORDENADAS
     const [tareasFiltradas, setTareasFiltradas] = useState([]);
+    const [filtrosActivos, setFiltrosActivos] = useState(0);
 
     // --- ESTADOS PARA EL MODAL DE ELIMINACIÓN ---
     const [modalEliminar, setModalEliminar] = useState(false);
@@ -123,6 +124,15 @@ const TareasProvider = ({ children }) => {
         }
 
         setTareasFiltradas(resultado);
+
+        // Calcular número de filtros activos (excluyendo el orden manual)
+        let count = 0;
+        if (busqueda) count++;
+        if (["Alta", "Media", "Baja"].includes(filtroPrioridad)) count++;
+        if (filtroFechaDesde) count++;
+        if (filtroFechaHasta) count++;
+        if (orden && orden !== "orden-manual") count++;
+        setFiltrosActivos(count);
     }, [tareas, busqueda, filtroPrioridad, filtroFechaDesde, filtroFechaHasta, orden]);
 
     // --- FUNCIONES ---
@@ -282,6 +292,7 @@ const TareasProvider = ({ children }) => {
                     prioridad: filtroPrioridad,
                     orden,
                 },
+                filtrosActivos,
 
                 // --- Exportar props para el modal ---
                 modalEliminar,
