@@ -1,6 +1,6 @@
 "use client"
 
-// src/components/Header.jsx
+// Encabezado con menú de usuario
 
 import { useState, useEffect, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
@@ -39,13 +39,12 @@ const Header = () => {
                           border-b border-slate-700/50 shadow-lg shadow-black/20 backdrop-blur-sm"
     >
       <div className="container mx-auto flex justify-between items-center px-4">
-        {/* Logo y título de la aplicación */}
+  {/* Logo y título */}
         <Link
           to="/admin"
           className="flex items-center gap-3 font-bold text-2xl text-slate-200 
                              hover:text-white transition-all duration-300 group"
         >
-          {/* El icono ahora es una imagen que apunta al SVG en la carpeta public */}
           <img
             src="/favicon.svg"
             alt="Logo de Gestor de Tareas"
@@ -60,7 +59,7 @@ const Header = () => {
           </span>
         </Link>
 
-        {/* Menú de usuario con avatar y desplegable */}
+  {/* Menú de usuario */}
         <div className="relative" ref={menuRef}>
           <button
             type="button"

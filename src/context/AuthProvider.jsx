@@ -1,20 +1,20 @@
 import { useState, useEffect, createContext } from "react";
 import clienteAxios from "../../config/axios";
 
-// --- Creación de Contexto con Autenticación ---
+// Contexto de autenticación
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    // --- Estados para la Carga y Autenticación ---
+    // Estado
     const [cargando, setCargando] = useState(true);
     const [auth, setAuth] = useState({});
 
-    // --- Efectos para la revisión del usuario al autenticarse ---
+    // Cargar perfil si hay token
     useEffect(() => {
         const autenticarUsuario = async () => {
             const token = localStorage.getItem("token");
 
-            // Si no hay token detiene la ejecución del codigo
+            // Sin token => no autenticado
             if (!token) {
                 setCargando(false);
                 return;
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 
     // --- Funciones ---
     const cerrarSesionAuth = () => {
-        // Limpiamos el token y la info de autenticación
+        // Limpiamos el token y la info de autenticación locales
         localStorage.removeItem('token');
         setAuth({});
     }

@@ -1,6 +1,6 @@
 "use client"
 
-// src/components/FormularioTareas.jsx
+// Formulario de creación/edición de tareas
 
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -20,7 +20,7 @@ const FormularioTareas = () => {
     formState: { errors, isSubmitting },
   } = useForm()
 
-  // Poblar formulario para edición
+  // Poblar formulario al editar
   useEffect(() => {
     if (tarea?.nombre) {
       reset({
@@ -49,7 +49,7 @@ const FormularioTareas = () => {
       const resultado = await guardarTarea({ ...data, fechaEntrega: fechaUTC })
 
       setAlerta(resultado)
-      // El `cancelarEdicionTarea` ya limpia el form y cierra el modal
+      // cancelarEdicionTarea limpia y cierra el modal
       if (!resultado.error) {
         cancelarEdicionTarea()
       }
@@ -62,7 +62,7 @@ const FormularioTareas = () => {
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
       {alerta.msg && <Alerta alerta={alerta} />}
 
-      {/* Campo Nombre */}
+  {/* Nombre */}
       <div>
         <label htmlFor="nombre" className="block text-slate-200 font-bold mb-2 text-sm">
           Nombre Tarea
@@ -96,7 +96,7 @@ const FormularioTareas = () => {
         )}
       </div>
 
-      {/* Campo Descripción */}
+  {/* Descripción */}
       <div>
         <label htmlFor="descripcion" className="block text-slate-200 font-bold mb-2 text-sm">
           Descripción
@@ -129,7 +129,7 @@ const FormularioTareas = () => {
         )}
       </div>
 
-      {/* Campo Fecha */}
+  {/* Fecha */}
       <div>
         <label htmlFor="fechaEntrega" className="block text-slate-200 font-bold mb-2 text-sm">
           Fecha de Entrega
@@ -161,7 +161,7 @@ const FormularioTareas = () => {
         )}
       </div>
 
-      {/* Campo Prioridad */}
+  {/* Prioridad */}
       <div>
         <label htmlFor="prioridad" className="block text-slate-200 font-bold mb-2 text-sm">
           Prioridad
@@ -198,7 +198,7 @@ const FormularioTareas = () => {
         )}
       </div>
 
-      {/* Botones al final del formulario */}
+  {/* Acciones */}
       <div className="flex flex-col sm:flex-row-reverse gap-3 pt-6 border-t border-slate-700/50">
         <Boton type="submit" disabled={isSubmitting}>
           {isSubmitting ? (

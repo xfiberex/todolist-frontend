@@ -4,19 +4,19 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthLayout from "./layout/AuthLayout";
 import RutaProtegida from "./layout/RutaProtegida";
 
-// --- Paginas Publicas ---
+// Páginas públicas
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import OlvidePassword from "./pages/OlvidePassword";
 import NuevoPassword from "./pages/NuevoPassword";
 import ConfirmarCuenta from "./pages/ConfirmarCuenta";
 
-// --- Paginas Privadas
+// Páginas privadas
 import AdministrarTareas from "./pages/AdministrarTareas";
 import ActualizarPerfil from "./pages/ActualizarPerfil";
 import CambiarPasswordPerfil from "./pages/CambiarPasswordPerfil";
 
-// --- Autenticación a cada ruta necesaria ---
+// Providers
 import { AuthProvider } from "./context/AuthProvider";
 import { TareasProvider } from "./context/TareasProvider";
 
@@ -26,7 +26,7 @@ function App() {
             <AuthProvider>
                 <TareasProvider>
                     <Routes>
-                        {/* Rutas publicas */}
+                        {/* Rutas públicas */}
                         <Route path="/" element={<AuthLayout />}>
                             <Route index element={<Login />} />
                             <Route path="registrar" element={<Register />} />
@@ -38,14 +38,13 @@ function App() {
                                 path="olvide-password/:token"
                                 element={<NuevoPassword />}
                             />
-                            {/* CORRECCIÓN: El parámetro es :token, no :id */}
                             <Route
                                 path="confirmar/:token"
                                 element={<ConfirmarCuenta />}
                             />
                         </Route>
 
-                        {/* Rutas privadas para el administrador */}
+                        {/* Rutas privadas */}
                         <Route path="/admin" element={<RutaProtegida />}>
                             <Route index element={<AdministrarTareas />} />
                             <Route

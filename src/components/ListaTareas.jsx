@@ -1,5 +1,6 @@
 "use client"
 
+// Lista con drag & drop y secciones pendientes/completadas
 import { useMemo, useState } from "react"
 import useTareas from "../hooks/useTareas"
 import Tarea from "./Tarea"

@@ -1,5 +1,3 @@
-// src/context/TareasProvider.jsx
-
 import { useState, useEffect, createContext } from "react";
 import clienteAxios from "../../config/axios";
 import useAuth from "../hooks/useAuth";
@@ -8,37 +6,37 @@ import { guardarOrden, obtenerOrden } from "../../helpers/indexedDB.js";
 const TareasContext = createContext();
 
 const TareasProvider = ({ children }) => {
-    // ESTADOS
+    // Estados para las tareas y alertas
     const [tareas, setTareas] = useState([]);
     const [tarea, setTarea] = useState({});
     const [alerta, setAlerta] = useState({});
     const [alertaEstatica, setAlertaEstatica] = useState({});
 
-    // ESTADOS PARA FILTROS Y ORDEN
+    // Estados para los Filtros y orden
     const [busqueda, setBusqueda] = useState("");
     const [filtroPrioridad, setFiltroPrioridad] = useState("todas");
     const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
     const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
     const [orden, setOrden] = useState("orden-manual");
 
-    // ESTADO PARA TAREAS FILTRADAS Y ORDENADAS
+    // Derivados o filtros
     const [tareasFiltradas, setTareasFiltradas] = useState([]);
     const [filtrosActivos, setFiltrosActivos] = useState(0);
 
-    // --- ESTADOS PARA EL MODAL DE ELIMINACIÓN ---
+    // Estados para el Modal de eliminación
     const [modalEliminar, setModalEliminar] = useState(false);
     const [tareaAEliminar, setTareaAEliminar] = useState(null);
     const [cargandoEliminacion, setCargandoEliminacion] = useState(false);
 
-    // --- ESTADOS PARA EL MODAL DEL FORMULARIO MOVIL ---
+    // Estados para el Modal de formulario (móvil)
     const [modalFormAbierto, setModalFormAbierto] = useState(false);
 
-    // --- ESTADOS PARA EL MODAL DE FILTROS ---
+    // Estados para el Modal de filtros
     const [modalFiltrosAbierto, setModalFiltrosAbierto] = useState(false);
 
     const { auth } = useAuth();
 
-    // EFECTO: OBTENER TAREAS
+    // Cargar tareas del usuario (y aplicar orden guardado)
     useEffect(() => {
         const obtenerTareas = async () => {
             if (!auth?._id) return;
@@ -75,13 +73,12 @@ const TareasProvider = ({ children }) => {
         obtenerTareas();
     }, [auth]);
 
-    // EFECTO: APLICAR FILTROS Y ORDEN
+    // Aplicar filtros/orden
     useEffect(() => {
         let resultado = [...tareas];
 
-        // Helpers para comparar por día en UTC (precisión día sin desfasajes)
+        // Fechas: comparar por día en UTC
         const parseYMDToUtcEpoch = (ymd) => {
-            // ymd: "YYYY-MM-DD"
             const [yy, mm, dd] = ymd.split("-").map(n => parseInt(n, 10));
             return Date.UTC(yy, mm - 1, dd);
         };
@@ -94,7 +91,6 @@ const TareasProvider = ({ children }) => {
         let desde = filtroFechaDesde || '';
         let hasta = filtroFechaHasta || '';
         if (desde && hasta && desde > hasta) {
-            // Si el usuario invierte el rango, lo corregimos
             [desde, hasta] = [hasta, desde];
         }
 
@@ -185,16 +181,16 @@ const TareasProvider = ({ children }) => {
 
     const setEdicion = tarea => {
         setTarea(tarea);
-        setModalFormAbierto(true); // Abre el modal al editar
+        setModalFormAbierto(true);
     };
 
     const cancelarEdicionTarea = () => {
         setTarea({});
-        setModalFormAbierto(false); // Cierra el modal al cancelar
+        setModalFormAbierto(false);
     };
 
     const eliminarTarea = async () => {
-        if (!tareaAEliminar) return; // Salvaguarda
+    if (!tareaAEliminar) return;
 
         setCargandoEliminacion(true);
         try {
@@ -209,10 +205,9 @@ const TareasProvider = ({ children }) => {
             setTareas(tareasActualizadas);
 
             setAlerta({ msg: "Tarea Eliminada Correctamente", error: false });
-            handleCloseModalEliminar(); // Cierra el modal después del éxito
+            handleCloseModalEliminar();
         } catch (error) {
             console.error(error);
-            // Puedes establecer una alerta de error aquí si lo deseas
         } finally {
             setCargandoEliminacion(false);
         }
@@ -244,36 +239,34 @@ const TareasProvider = ({ children }) => {
         }
     };
 
-    // --- Función para ABRIR el modal ---
-    // Recibe la tarea completa para poder mostrar su nombre
+    // Modal eliminar: abrir (recibe tarea)
     const handleModalEliminar = tarea => {
         setTareaAEliminar(tarea);
         setModalEliminar(true);
     };
 
-    // --- Función para CERRAR el modal ---
+    // Modal eliminar: cerrar
     const handleCloseModalEliminar = () => {
         setModalEliminar(false);
-        // Pequeño delay para que no se vea el cambio de nombre antes de que se cierre
         setTimeout(() => setTareaAEliminar(null), 300);
     };
 
-    // --- Función para abrir el modal para una nueva tarea ---
+    // Modal form: abrir (nueva tarea)
     const handleAbrirModalForm = () => {
         setTarea({}); // Asegurarse de que no hay datos de edición
         setModalFormAbierto(true);
     };
 
-    // --- Función para cerrar el modal ---
+    // Modal form: cerrar
     const handleCerrarModalForm = () => {
         setModalFormAbierto(false);
     };
 
-    // --- Abrir/Cerrar modal de filtros ---
+    // Modal filtros
     const handleAbrirModalFiltros = () => setModalFiltrosAbierto(true);
     const handleCerrarModalFiltros = () => setModalFiltrosAbierto(false);
 
-    // ---- `limpiarFiltros` ahora resetea a 'orden-manual' ----
+    // Reset filtros y orden manual
     const limpiarFiltros = () => {
         setBusqueda("");
         setFiltroFechaDesde("");
@@ -311,19 +304,19 @@ const TareasProvider = ({ children }) => {
                 },
                 filtrosActivos,
 
-                // --- Exportar props para el modal ---
+                // Modal eliminar
                 modalEliminar,
                 handleModalEliminar,
                 handleCloseModalEliminar,
                 tareaAEliminar,
                 cargandoEliminacion,
 
-                // --- Exportar props para el modal del formulario movil ---
+                // Modal form (móvil)
                 modalFormAbierto,
                 handleAbrirModalForm,
                 handleCerrarModalForm,
 
-                // --- Exportar props para el modal de filtros ---
+                // Modal filtros
                 modalFiltrosAbierto,
                 handleAbrirModalFiltros,
                 handleCerrarModalFiltros,
