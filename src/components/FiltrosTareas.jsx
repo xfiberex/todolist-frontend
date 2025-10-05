@@ -63,7 +63,9 @@ const FiltrosTareas = ({ variant = "panel" }) => {
             <label className="block text-slate-300 font-semibold mb-2">Desde</label>
             <input
               type="date"
-              className="w-full rounded-lg p-3 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 text-white focus:outline-none focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/30 focus:bg-slate-900/70 transition-all duration-300 cursor-pointer"
+              className="w-full rounded-lg p-3 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 
+                       text-white focus:outline-none focus:border-teal-500/50 focus:ring-2 
+                       focus:ring-teal-500/30 focus:bg-slate-900/70 transition-all duration-300 cursor-pointer"
               value={filtros.fechaDesde}
               onChange={(e) => setFiltroFechaDesde(e.target.value)}
             />
@@ -97,7 +99,9 @@ const FiltrosTareas = ({ variant = "panel" }) => {
         <div className="pt-2">
           <button
             onClick={limpiarFiltros}
-            className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-slate-900/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-95"
+            className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 
+            text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-slate-900/50 transition-all duration-300 
+            hover:shadow-xl"
           >
             Limpiar Filtros
           </button>

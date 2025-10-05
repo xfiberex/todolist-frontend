@@ -3,7 +3,7 @@
 // src/components/ModalEliminacion.jsx
 
 import { Fragment } from "react"
-import { Dialog, Transition, TransitionChild } from "@headlessui/react"
+import { Dialog, Transition } from "@headlessui/react"
 import { BotonCancelacion } from "./Boton"
 import Spinner from "./Spinner"
 
@@ -30,7 +30,7 @@ const ModalEliminacion = ({ isOpen, onClose, onConfirm, tareaNombre, cargando })
     <Transition show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         {/* Overlay del fondo with backdrop blur */}
-        <TransitionChild
+        <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -40,7 +40,7 @@ const ModalEliminacion = ({ isOpen, onClose, onConfirm, tareaNombre, cargando })
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" />
-        </TransitionChild>
+        </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">

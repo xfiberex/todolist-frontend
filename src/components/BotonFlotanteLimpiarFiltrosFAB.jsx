@@ -5,7 +5,7 @@
 const BotonFlotanteLimpiarFiltrosFAB = ({ onClick, visible = false }) => {
   if (!visible) return null
   return (
-    <div className="md:hidden fixed bottom-42 right-6 z-50">
+    <div className="md:hidden fixed bottom-42 right-6 z-30">
       <button
         type="button"
         onClick={onClick}

@@ -27,6 +27,47 @@
     }
 }
 
+/* Utilidad de animación usada en componentes (por ejemplo, Alerta) */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out both;
+}
+
+/* Animación combinada para menús desplegables (desliza desde arriba con fade) */
+@keyframes slideFadeDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-dropdown {
+    animation: slideFadeDown 0.2s ease-out both;
+}
+
+/* Scrollbar personalizada (soporte básico sin plugin) */
+.scrollbar-thin {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #334155 rgba(30, 41, 59, 0.5); /* thumb track */
+}
+.scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #334155; /* slate-700 */
+    border-radius: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+    background-color: rgba(30, 41, 59, 0.5); /* slate-800/50 */
+}
+
 /* Añade este bloque de código */
 input[type="date"]::-webkit-calendar-picker-indicator {
     /* Invierte el color del icono. Como el icono por defecto es oscuro, 
@@ -51,4 +92,9 @@ select.appearance-none {
 
     /* Tamaño de la flecha */
     background-size: 1.5em 1.5em;
+
+    /* Garantiza la eliminación de apariencia nativa en navegadores que lo requieran */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }

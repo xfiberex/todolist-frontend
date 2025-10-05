@@ -35,7 +35,7 @@ const Header = () => {
 
   return (
     <header
-      className="py-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 
+      className="relative z-[70] py-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 
                           border-b border-slate-700/50 shadow-lg shadow-black/20 backdrop-blur-sm"
     >
       <div className="container mx-auto flex justify-between items-center px-4">
@@ -68,7 +68,7 @@ const Header = () => {
             className="flex items-center gap-3 p-2 px-4 rounded-xl 
                                  hover:bg-slate-700/50 transition-all duration-300
                                  ring-2 ring-transparent hover:ring-teal-500/30
-                                 hover:shadow-lg hover:shadow-teal-500/10"
+                                 hover:shadow-lg hover:shadow-teal-500/10 z-50"
           >
             <span className="font-bold text-white hidden sm:block">{`${auth.nombre} ${auth.apellido}`}</span>
             {/* Avatar con las iniciales del usuario */}
@@ -90,10 +90,10 @@ const Header = () => {
               className="absolute right-0 mt-3 w-72 
                                       bg-gradient-to-br from-slate-800/95 to-slate-900/95 
                                       backdrop-blur-xl rounded-xl shadow-2xl 
-                                      border border-slate-700/50 z-10
-                                      animate-in fade-in slide-in-from-top-2 duration-200"
+                                      border border-slate-700/50 z-[60]
+                                      animate-dropdown duration-200"
             >
-              <nav className="p-2">
+              <nav className="p-2 animate-dropdown">
                 <Link
                   to="/admin/perfil"
                   onClick={() => setMenuAbierto(false)}

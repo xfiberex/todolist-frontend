@@ -140,7 +140,6 @@ const FormularioTareas = () => {
           className={`block w-full rounded-xl p-3.5 
                               bg-slate-900/50 backdrop-blur-sm border text-white 
                               focus:outline-none focus:ring-2 transition-all duration-300
-                              [color-scheme:dark]
                               ${
                                 errors.fechaEntrega
                                   ? "border-rose-500 focus:border-rose-400 focus:ring-rose-500/30"

@@ -50,6 +50,8 @@ export const AlertaEstatica = ({ alerta }) => {
       } bg-gradient-to-br shadow-xl rounded-lg p-4 mb-10 flex items-center space-x-4 animate-fadeIn backdrop-blur-sm border ${
         alerta.error ? "border-red-400/30" : "border-teal-400/30"
       }`}
+      role="alert"
+      aria-live={alerta.error ? "assertive" : "polite"}
     >
       <div className="flex-shrink-0">{alerta.error ? <IconoError /> : <IconoExito />}</div>
       <div className="flex-1">
@@ -85,6 +87,8 @@ const Alerta = ({ alerta }) => {
       } bg-gradient-to-br shadow-xl rounded-lg p-4 mb-10 flex items-center space-x-4 backdrop-blur-sm border ${
         alerta.error ? "border-red-400/30" : "border-teal-400/30"
       } animate-fadeIn`}
+      role="alert"
+      aria-live={alerta.error ? "assertive" : "polite"}
     >
       <div className="flex-shrink-0">{alerta.error ? <IconoError /> : <IconoExito />}</div>
       <div className="flex-1">
